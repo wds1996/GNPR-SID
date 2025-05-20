@@ -1,9 +1,19 @@
+The full codebase is still under organization. Currently, the following components have been made available:
 
-The full codebase is still under organization. Currently, we have uploaded:
+- **RQ-VAE Module**  
+  The core implementation of the Residual Vector Quantized Variational Autoencoder (RQ-VAE) is provided.  
+  To train a custom codebook, use the script [`code/train_rqvae.py`](./code/train_rqvae.py).  
+  After training, the mapping from discrete token IDs to semantic IDs can be generated using [`codebook.py`](./codebook.py).
 
-- The core implementation of the **RQ-VAE** module
-- A sample dataset based on **NYC** data
-- The data preprocessing notebook: [`dataprocess.ipynb`](./path/to/dataprocess.ipynb) and [`data2json.ipynb`](./path/to/data2json.ipynb) 
+- **Sample Dataset**  
+  A sample dataset based on **NYC** data is included for demonstration and evaluation purposes.
 
-For model fine-tuning, we use the [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory).  
-You can perform fine-tuning and evaluation by following the official instructions and using the provided dataset.
+- **Data Preprocessing**  
+  The preprocessing pipeline is provided in the following Jupyter notebooks:  
+  - [`dataprocess.ipynb`](./path/to/dataprocess.ipynb): for raw data cleaning and formatting  
+  - [`data2json.ipynb`](./path/to/data2json.ipynb): for converting processed data into model-ready JSON format
+
+- **Model Fine-tuning**  
+  We adopt the [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) framework for fine-tuning large language models.  
+  You can reproduce the fine-tuning and evaluation processes by using our dataset along with the official instructions provided in the LLaMA-Factory repository.
+
