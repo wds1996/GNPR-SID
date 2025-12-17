@@ -1,29 +1,37 @@
-This repository contains the official implementation of the KDD 2025 paper *“Generative Next POI Recommendation with Semantic ID.”*
+# Repository Structure: V1 and V2 Releases
 
-The following components are already available:
+This repository provides **two independent versions**:  
+**V1** corresponds to the implementation used in our KDD 2025 paper *“Generative Next POI Recommendation with Semantic ID.”*  
+**V2** is a subsequently improved version that incorporates further refinements and modular updates.
 
-### **RQ-VAE Module**
+---
 
-The core implementation of the Residual Vector Quantized Variational Autoencoder (RQ-VAE) is provided.
+## 🥇 V1 — Original Release
 
-* using `code/train_rqvae.py` to train a custom codebook.
-* After training, use `codebook.py` to generate the mapping from discrete token IDs to semantic IDs.
+Directory: **`V1/`**
 
-### **Sample Dataset**
+This version contains the **initial implementation**, including:
 
-A sample dataset based on the **NYC** check-in data is included for demonstration and evaluation.
+- RQ-VAE quantization
+- Sample NYC dataset
+- Basic instructions for LLM fine-tuning
 
-### **Data Preprocessing**
+---
 
-The data preprocessing pipeline is available in the following Jupyter notebooks:
+## 🚀 V2 — Updated Release
 
-* `dataprocess.ipynb`: raw data cleaning and formatting
-* `data2json.ipynb`: conversion of processed data into model-ready JSON format
+Directory: **`V2/`**
 
-### **Model Fine-tuning**
+This version provides the **latest and recommended implementation**, featuring:
 
-Model fine-tuning is conducted using the [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) framework.
-You can reproduce the fine-tuning and evaluation workflows using our processed datasets, following the official instructions provided in the LLaMA-Factory repository.
+- Reorganized project structure
+- POI embedding module under
+- SID module with projection-based cosine quantization and EMA smoothing
+- Sample LLM fine-tuning code
+- Support for SID-LLM semantic alignment or direct full fine-tuning
+
+---
+
 
 ### **Cite Us**
 
