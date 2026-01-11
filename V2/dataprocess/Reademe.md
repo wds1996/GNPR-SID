@@ -5,7 +5,7 @@ This directory contains two different data splitting strategies used for constru
 
 ## 1. sessionSplit
 
-The `sessionSplit` folder uses a **session-based data splitting strategy**:
+ `sessionSplit` folder uses a **session-based data splitting strategy**:
 
 - User interactions within a **continuous time period (a session)** are treated as one data sample;
 - Each session corresponds to a single data instance;
@@ -13,7 +13,7 @@ The `sessionSplit` folder uses a **session-based data splitting strategy**:
 
 ## 2. userSplit
 
-The `userSplit` folder uses a **user-based data splitting strategy**:
+ `userSplit` folder uses a **user-based data splitting strategy**:
 
 - All interaction records of a **single user** are treated as one data sample;
 - Each user corresponds to a single data instance;
