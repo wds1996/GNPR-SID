@@ -9,7 +9,6 @@ This directory contains two different data splitting strategies used for constru
 
 - User interactions within a **continuous time period (a session)** are treated as one data sample;
 - Each session corresponds to a single data instance;
-- This strategy is suitable for modeling short-term user behavior patterns.
 
 ## 2. userSplit
 
@@ -17,7 +16,6 @@ This directory contains two different data splitting strategies used for constru
 
 - All interaction records of a **single user** are treated as one data sample;
 - Each user corresponds to a single data instance;
-- This strategy is suitable for modeling long-term user preferences.
 
 ## Historical Data Concatenation
 
