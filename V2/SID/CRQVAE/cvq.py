@@ -54,56 +54,37 @@ class CosineVectorQuantizer(nn.Module):
         codebook = self.get_codebook()  # [K, D]
 
         # 相似度聚类 Cosine similarity for index selection
-        latent_norm = F.normalize(latent, dim=1)
-        codebook_norm = F.normalize(codebook, dim=1)
-        sim = torch.matmul(latent_norm, codebook_norm.t())  # [B, K]
-        distances = 1 - sim  # 越小表示越接近
-
-        # 欧氏距离聚类 Euclidean distance for index selection
-        # distances = torch.cdist(latent.unsqueeze(0), codebook.unsqueeze(0)).squeeze(0)  # [B, K]
+        latent_norm = F.normalize(latent, dim=-1, eps=1e-8)
+        codebook_dir = F.normalize(codebook, dim=-1, eps=1e-8)
+        sim = latent_norm @ codebook_dir.t()  # [B, K]
 
         if use_sk and self.sk_epsilon is not None and self.sk_epsilon > 0:
-            d_soft = self.center_distance_for_constraint(distances)
-            d_soft = d_soft.double()
+            distances = 1 - sim
+            d_soft = self.center_distance_for_constraint(distances).double()
             Q = sinkhorn_algorithm(d_soft, self.sk_epsilon, self.sk_iters)
             if torch.isnan(Q).any():
-                print("Warning: Sinkhorn returned NaN, falling back to argmin")
-                indices = torch.argmin(distances, dim=-1)
+                print("Warning: Sinkhorn returned NaN, falling back to argmax(sim)")
+                indices = sim.argmax(dim=-1)
             else:
-                indices = torch.argmax(Q, dim=-1)
+                indices = Q.argmax(dim=-1)
         else:
-            indices = torch.argmin(distances, dim=-1)
+            indices = sim.argmax(dim=-1)
 
-        # Get codebook vectors 等价于 codebook_vec = codebook[indices]
-        codebook_vec = F.embedding(indices, codebook)  # [B, D]
 
-        # 投影量化 Compute projection scalar: w = (x · c) / ||c||^2
-        dot_product = torch.sum(latent * codebook_vec, dim=-1, keepdim=True)  # [B, 1]
-        norm_sq = torch.sum(codebook_vec * codebook_vec, dim=-1, keepdim=True)
-        scalar = dot_product / (norm_sq + 1e-8)                                # [B, 1]
-        # scalar 裁剪（防止方向反转）
-        scalar = torch.clamp(scalar, min=0.0)  # 防止 w < 0 导致方向反转
-        proj_vec = scalar * codebook_vec
+        direction  = F.embedding(indices, codebook_dir)  # [B, D]
+
+        # 投影量化 Compute projection scalar
+        scalar = (latent * direction).sum(dim=-1, keepdim=True)
+        scalar = scalar.clamp(min=0.0)                           # 可选
+        proj_vec = scalar * direction
         
-        # 余弦相似度量化损失
-        commitment_loss = F.cosine_similarity(proj_vec.detach(), latent, dim=-1)
-        codebook_loss = F.cosine_similarity(proj_vec, latent.detach(), dim=-1)
-        loss = (1 - codebook_loss).mean() + self.beta * (1 - commitment_loss).mean()
 
-
-        # 直接量化
-        # scalar = torch.ones(B, device=x.device) # 为了保持接口一致，返回一个全1的scalar
-        # proj_vec = codebook_vec
-        
-        
-        # MSE量化损失
-        # commitment_loss = F.mse_loss(proj_vec.detach(), x)
-        # codebook_loss = F.mse_loss(proj_vec, x.detach())
-        # loss = codebook_loss + self.beta * commitment_loss
-
+        commitment_loss = F.mse_loss(proj_vec.detach(), latent)
+        codebook_loss = F.mse_loss(proj_vec, latent.detach())
+        loss = codebook_loss + self.beta * commitment_loss
 
         # Straight-through estimator
-        x_q = x + (proj_vec - x).detach()
+        x_q = latent  + (proj_vec - latent).detach()
 
         indices = indices.view(B)        # [B]
         scalar = scalar.view(B)          # [B]
