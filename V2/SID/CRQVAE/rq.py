@@ -1,11 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-# from .cvq import CosineVectorQuantizer
-from .cvq_ema import CosineVectorQuantizer
-
-# from .vq import CosineVectorQuantizer
-
+from .cvq import CosineVectorQuantizer
 
 class ResidualVectorQuantizer(nn.Module):
 
