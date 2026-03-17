@@ -22,16 +22,13 @@ class CosineVectorQuantizer(nn.Module):
         self.use_ema = use_ema
         self.ema_decay = ema_decay
         self.ema_epsilon = ema_epsilon
-
         if use_ema:
-            # self.beta = beta * 0.4
             self.register_buffer('cluster_size', torch.zeros(n_e))
             self.register_buffer('ema_w', torch.zeros(n_e, e_dim))
             if use_linear == 1:
                 self.use_linear = 0
         # end EMA
         
-        # 初始化码本
         self.embedding = nn.Embedding(self.n_e, self.e_dim)
         if not kmeans_init:
             self.initted = True
@@ -42,7 +39,6 @@ class CosineVectorQuantizer(nn.Module):
         
         if use_ema:
             self.embedding.weight.requires_grad_(False)
-
 
         if use_linear == 1:
             self.codebook_projection = torch.nn.Linear(self.e_dim, self.e_dim)
@@ -72,7 +68,7 @@ class CosineVectorQuantizer(nn.Module):
 
         # Cosine similarity for index selection
         latent_norm = F.normalize(latent, dim=-1, eps=1e-8)
-        codebook_dir = F.normalize(codebook, dim=-1, eps=1e-8)  # 单位方向
+        codebook_dir = F.normalize(codebook, dim=-1, eps=1e-8)
         sim = latent_norm @ codebook_dir.t()  # [B, K]
 
         if use_sk and self.sk_epsilon is not None and self.sk_epsilon > 0:
@@ -91,7 +87,7 @@ class CosineVectorQuantizer(nn.Module):
 
         # projection on selected direction
         scalar = (latent * direction).sum(dim=-1, keepdim=True)  # [B, 1]
-        scalar = scalar.clamp(min=0.0)                           # 可选
+        scalar = scalar.clamp(min=0.0)                    
         proj_vec = scalar * direction       
         
 
@@ -104,11 +100,10 @@ class CosineVectorQuantizer(nn.Module):
             codebook_loss = F.mse_loss(proj_vec, latent.detach())
             loss = codebook_loss + self.beta * commitment_loss
 
-
         # Straight-through estimator
         x_q = latent + (proj_vec - latent).detach()
 
-        # 关键：EMA 更新（仅训练时）
+        # EMA 
         if self.use_ema and self.training:
             with torch.no_grad():
                 one_hot = F.one_hot(indices, self.n_e).float()
@@ -116,21 +111,16 @@ class CosineVectorQuantizer(nn.Module):
                 self.cluster_size.mul_(self.ema_decay).add_(batch_cluster_size, alpha=1 - self.ema_decay)
 
                 dw = torch.zeros_like(self.ema_w)
-                # 关键：对齐 device
                 dw.index_add_(0, indices, latent_norm.to(self.ema_w.device))
                 self.ema_w.mul_(self.ema_decay).add_(dw, alpha=1 - self.ema_decay)
-
-                # 更新 embedding weight
                 n = self.cluster_size.unsqueeze(1).clamp(min=self.ema_epsilon)
-                # self.embedding.weight.data.copy_(self.ema_w / n)
                 new_codebook = self.ema_w / n
                 new_codebook = F.normalize(new_codebook, dim=-1, eps=1e-8)
                 self.embedding.weight.data.copy_(new_codebook)
 
-                # 死码重置
                 # dead_threshold = 2.0
                 avg_usage = self.cluster_size.mean()
-                dead_threshold = avg_usage * 0.2  # 使用率低于平均20%即重置
+                dead_threshold = avg_usage * 0.2
                 dead_indices = torch.where(self.cluster_size < dead_threshold)[0]
                 num_dead = dead_indices.numel()
                 if num_dead > 0:
@@ -148,7 +138,6 @@ class CosineVectorQuantizer(nn.Module):
 
         indices = indices.view(B)        # [B]
         scalar = scalar.view(B)          # [B]
-
         return x_q, loss, indices, scalar
 
     @staticmethod
