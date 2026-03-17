@@ -10,12 +10,24 @@ This directory contains two different data splitting strategies used for constru
 - User interactions within a **continuous time period (a session)** are treated as one data sample;
 - Each session corresponds to a single data instance;
 
-## 2. userSplit
+## 2. LLM4POI_data
 
- `userSplit` folder uses a **user-based data splitting strategy**:
+You can directly adopt the preprocessed dataset from **LLM4POI**:  
+https://github.com/neolifer/LLM4POI/tree/main
 
-- All interaction records of a **single user** are treated as one data sample;
-- Each user corresponds to a single data instance;
+To reproduce our data pipeline, please follow the steps below:
+
+1. **Download the dataset**  
+   Download the dataset from the LLM4POI repository.
+
+2. **Generate POI metadata**  
+   Run the following notebook to obtain `poi_info.csv`: `LLM4POI_data/dataprocess.ipynb`
+
+3. **Generate Semantic IDs (SIDs)**  
+Execute the codebook quantization module to obtain SID representations for POIs.
+
+4. **Prepare LLM training data**  
+Run the following notebook to construct the final dataset for LLM fine-tuning: `LLM4POI_data/llm_dataprocess.ipynb`
 
 ## Historical Data Concatenation
 
@@ -23,14 +35,3 @@ Both data splitting strategies apply historical data concatenation:
 
 - The historical sequence length is set to **50** in the experiments;
 - Each data sample consists of the current interactions concatenated with the **most recent 50 historical records**.
-
-## Reported Results and Comparison
-
-The results reported in the paper are based on the **user-based data split**.
-
-Our experiments indicate that **user-based splitting is more challenging** than session-based splitting, while **session-based splitting is relatively easier**.
-
-Taking the **NYC dataset** as an example:
-
-- Under the **user-based split**, the accuracy ranges from **0.35 to 0.37**, where **V2 shows a consistent improvement over V1**;
-- Under the **session-based split**, the accuracy can reach **0.43 to 0.44**
