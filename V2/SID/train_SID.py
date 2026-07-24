@@ -34,6 +34,9 @@ def parse_args(datafold):
     parser.add_argument('--sk_epsilons', type=float, nargs='+', default=[0.1, 0.1, 0.1], help="sinkhorn epsilons")
     parser.add_argument("--sk_iters", type=int, default=50, help="max sinkhorn iters")
     parser.add_argument("--use-linear", type=int, default=1, help="use-linear")
+    parser.add_argument("--use-ema", action=argparse.BooleanOptionalAction, default=True, help="use-ema")
+    parser.add_argument("--ema-decay", type=float, default=0.95, )
+    parser.add_argument("--ema-epsilon", type=float, default=1e-5, )
 
     parser.add_argument("--device", type=str, default="cuda:0", help="gpu or cpu")
 
