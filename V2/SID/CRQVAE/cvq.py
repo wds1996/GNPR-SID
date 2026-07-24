@@ -87,7 +87,7 @@ class CosineVectorQuantizer(nn.Module):
 
         # projection on selected direction
         scalar = (latent * direction).sum(dim=-1, keepdim=True)  # [B, 1]
-        scalar = scalar.clamp(min=0.0)                    
+        # scalar = scalar.clamp(min=0.0)  # optional                  
         proj_vec = scalar * direction       
         
 
