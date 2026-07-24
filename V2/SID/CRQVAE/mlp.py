@@ -16,19 +16,32 @@ class MLPLayers(nn.Module):
         self.use_bn = bn
 
         mlp_modules = []
-        for idx, (input_size, output_size) in enumerate(zip(self.layers[:-1], self.layers[1:])):
-            # mlp_modules.append(nn.Dropout(p=self.dropout))
-            mlp_modules.append(nn.Linear(input_size, output_size))
-
-            if self.use_bn and idx != (len(self.layers)-2):
-                mlp_modules.append(nn.BatchNorm1d(num_features=output_size))
-            if idx != len(self.layers) - 2:
-                activation_func = activation_layer(self.activation, output_size)
+        for idx, (input_size, output_size) in enumerate(
+            zip(self.layers[:-1], self.layers[1:])
+        ):
+            is_last = idx == len(self.layers) - 2
+        
+            mlp_modules.append(
+                nn.Linear(input_size, output_size)
+            )
+        
+            if self.use_bn and not is_last:
+                mlp_modules.append(
+                    nn.BatchNorm1d(output_size)
+                )
+        
+            if not is_last:
+                activation_func = activation_layer(
+                    self.activation,
+                    output_size,
+                )
                 if activation_func is not None:
                     mlp_modules.append(activation_func)
-    
-            mlp_modules.append(nn.Dropout(p=self.dropout))
-
+        
+                if self.dropout > 0:
+                    mlp_modules.append(
+                        nn.Dropout(p=self.dropout)
+                    )
         self.mlp_layers = nn.Sequential(*mlp_modules)
         self.apply(self.init_weights)
 
