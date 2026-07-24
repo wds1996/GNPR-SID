@@ -6,7 +6,7 @@ from .cvq import CosineVectorQuantizer
 class ResidualVectorQuantizer(nn.Module):
 
     def __init__(self, n_e_list, e_dim, sk_epsilons=None, beta=0.25,
-                 kmeans_init=False, kmeans_iters=100, sk_iters=100, use_linear=0):
+                 kmeans_init=False, kmeans_iters=100, sk_iters=100, use_linear=0, use_ema=True, ema_decay=0.95, ema_epsilon=1e-5):
         super().__init__()
         self.n_e_list = n_e_list
         self.e_dim = e_dim
@@ -24,7 +24,10 @@ class ResidualVectorQuantizer(nn.Module):
                     kmeans_iters=self.kmeans_iters,
                     sk_epsilon=sk_epsilon,
                     sk_iters=sk_iters,
-                    use_linear=use_linear
+                    use_linear=use_linear,
+                    use_ema=use_ema,
+                    ema_decay=ema_decay,
+                    ema_epsilon=ema_epsilon,
                 )
                 for n_e, sk_epsilon in zip(n_e_list, sk_epsilons)
             ])
