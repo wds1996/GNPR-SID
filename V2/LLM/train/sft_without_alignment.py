@@ -76,7 +76,7 @@ def train(
         r=16,
         lora_alpha=32,
         # target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "lm_head"],
-        target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj"],
+        target_modules=["q_proj", "k_proj", "v_proj", "gate_proj", "up_proj"],
         lora_dropout=0.05,
         task_type="CAUSAL_LM",
         bias="none",
