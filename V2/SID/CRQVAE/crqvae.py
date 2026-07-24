@@ -23,6 +23,9 @@ class CRQVAE(nn.Module):
                  sk_epsilons=None,
                  sk_iters=100,
                  use_linear=0,
+                 use_ema=True,
+                ema_decay=0.95,
+                ema_epsilon=1e-5,
         ):
         super(CRQVAE, self).__init__()
 
@@ -54,7 +57,10 @@ class CRQVAE(nn.Module):
             kmeans_iters=self.kmeans_iters,
             sk_epsilons=self.sk_epsilons,
             sk_iters=self.sk_iters,
-            use_linear=self.use_linear
+            use_linear=self.use_linear,
+            use_ema=use_ema,
+            ema_decay=ema_decay,
+            ema_epsilon=ema_epsilon,
         )
 
         # 基于下游推荐任务进行损失估计，无需再使用重构损失
