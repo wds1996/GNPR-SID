@@ -165,7 +165,7 @@ if __name__ == "__main__":
         num_train_epochs=5,
         learning_rate=2e-5,
         grad_accum=2,
-        cutoff_len=3072,
+        cutoff_len=2048,
         seed=42,
         wandb_project=f"{datafold}",    
         wandb_run_name="",   
